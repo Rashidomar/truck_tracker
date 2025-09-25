@@ -1,0 +1,45 @@
+# Python bytecode
+*.pyc
+__pycache__/
+
+# Virtual environment
+.venv/
+venv/
+env/
+ENV/
+
+# Database files
+*.sqlite3
+db.sqlite3
+
+# Media and static files (often collected and served separately in production)
+media/
+static_collected/
+
+# Local settings and environment variables
+local_settings.py
+.env
+
+# Logs and temporary files
+*.log
+*.pot
+*.bak
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*~
+.DS_Store
+
+# Django specific
+migrations/  # If managing migrations in production environments separately
+*.pyo
+
+# Build artifacts (if using tools like PyInstaller)
+build/
+dist/
+
+# Other common exclusions
+*.zip
+*.tar.gz
