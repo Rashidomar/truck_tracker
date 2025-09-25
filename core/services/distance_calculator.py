@@ -26,14 +26,14 @@ class DistanceCalculation:
                 data = response.json()
                 if data['features']:
                     coords = data['features'][0]['geometry']['coordinates']
-                    return [coords[0], coords[1]]  # [longitude, latitude]
+                    return [coords[0], coords[1]]  
                     
         except Exception as e:
             logger.error(f"Geocoding error for {location}: {e}")
             
         return None
     def calculate_openroute_distance(self, coordinates: List[Tuple[float, float]]) -> Optional[float]:
-        """Calculate distance using OpenRouteService routing API"""
+        # print(f"DEBUG: calculate_openroute_distance called with coordinates: {coordinates}")
         api_key = settings.OPENROUTE_API_KEY
         try:
             url = "https://api.openrouteservice.org/v2/directions/driving-car"
@@ -43,7 +43,6 @@ class DistanceCalculation:
                 'Content-Type': 'application/json'
             }
             
-            # Convert coordinates to the format OpenRouteService expects
             coord_array = [[lon, lat] for lon, lat in coordinates]
             
             body = {
@@ -59,6 +58,7 @@ class DistanceCalculation:
                     # Distance is in meters, convert to miles
                     distance_meters = data['routes'][0]['summary']['distance']
                     distance_miles = distance_meters * 0.000621371
+                    print(f"DEBUG: Distance in miles: {distance_miles}")
                     return round(distance_miles, 1)
                 
         except Exception as e:

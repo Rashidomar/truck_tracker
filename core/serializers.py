@@ -1,10 +1,8 @@
-# core/serializers.py
 from rest_framework import serializers
 from .models import Trip, TripSegment, DailyLog, LogEntry
 
 
 class LocationCoordinateSerializer(serializers.Serializer):
-    """Serializer for location with coordinates"""
     name = serializers.CharField(max_length=255)
     coords = serializers.ListField(
         child=serializers.FloatField(),
@@ -14,7 +12,6 @@ class LocationCoordinateSerializer(serializers.Serializer):
     )
     
     def validate_coords(self, value):
-        """Validate coordinate format"""
         if len(value) != 2:
             raise serializers.ValidationError("Coordinates must be [longitude, latitude]")
         
@@ -32,7 +29,6 @@ class LocationCoordinateSerializer(serializers.Serializer):
 
 
 class TripCreateSerializer(serializers.ModelSerializer):
-    """Updated to accept coordinates instead of just location names"""
     current_location = LocationCoordinateSerializer()
     pickup_location = LocationCoordinateSerializer()
     dropoff_location = LocationCoordinateSerializer()
@@ -51,7 +47,6 @@ class TripCreateSerializer(serializers.ModelSerializer):
         ]
         
 class LogEntrySerializer(serializers.ModelSerializer):
-    """Serializer for individual log entries on ELD grid"""
     duty_status_display = serializers.CharField(source='get_duty_status_display', read_only=True)
     
     class Meta:
@@ -66,7 +61,6 @@ class LogEntrySerializer(serializers.ModelSerializer):
 
 
 class DailyLogSerializer(serializers.ModelSerializer):
-    """Serializer for daily ELD log sheets"""
     entries = LogEntrySerializer(many=True, read_only=True)
     formatted_date = serializers.SerializerMethodField()
     
@@ -89,7 +83,6 @@ class DailyLogSerializer(serializers.ModelSerializer):
 
 
 class TripSegmentSerializer(serializers.ModelSerializer):
-    """Serializer for trip segments (for route display)"""
     segment_type_display = serializers.CharField(source='get_segment_type_display', read_only=True)
     formatted_start_time = serializers.SerializerMethodField()
     formatted_end_time = serializers.SerializerMethodField()
@@ -117,7 +110,6 @@ class TripSegmentSerializer(serializers.ModelSerializer):
 
 
 class TripResponseSerializer(serializers.ModelSerializer):
-    """Response serializer with all calculated data - matches assessment outputs"""
     segments = TripSegmentSerializer(many=True, read_only=True)
     daily_logs = DailyLogSerializer(many=True, read_only=True)
     
@@ -143,7 +135,6 @@ class TripResponseSerializer(serializers.ModelSerializer):
         ]
     
     def get_route_summary(self, obj):
-        """Summary for map route display"""
         return {
             'origin': obj.current_location,
             'destination': obj.dropoff_location,

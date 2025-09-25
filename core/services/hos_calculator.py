@@ -1,4 +1,3 @@
-# core/services/hos_calculator.py
 from datetime import datetime, timedelta
 from typing import Dict, Any, List, Tuple
 import math
@@ -15,13 +14,13 @@ class HOSCalculator:
     MAX_DAILY_ON_DUTY = 14.0
     MAX_CYCLE_HOURS = 70.0
     REQUIRED_OFF_DUTY = 10.0
-    BREAK_REQUIREMENT_HOURS = 8.0  # 30-min break after 8 hours
+    BREAK_REQUIREMENT_HOURS = 8.0  
     
     # Assessment assumptions
     DEFAULT_AVG_SPEED = 55.0
-    FUEL_RANGE = 1000.0  # Every 1000 miles per assessment
-    FUEL_STOP_DURATION = 0.5  # 30 minutes
-    PICKUP_DROPOFF_DURATION = 1.0  # 1 hour per assessment
+    FUEL_RANGE = 1000.0  
+    FUEL_STOP_DURATION = 0.5  
+    PICKUP_DROPOFF_DURATION = 1.0  
     
     def __init__(self, trip_data: Dict[str, Any]):
         self.start_time = trip_data.get("start_time")
@@ -62,7 +61,6 @@ class HOSCalculator:
         time_since_break = 0
         
         while miles_remaining > 0:
-            # Check if we need fuel (every 1000 miles)
             if self._needs_fuel_stop(segments):
                 fuel_segment = {
                     "segment_type": "fuel",
@@ -80,7 +78,6 @@ class HOSCalculator:
                 time_since_break += self.FUEL_STOP_DURATION
                 continue
             
-            # Check if we need 30-min break after 8 hours
             if time_since_break >= self.BREAK_REQUIREMENT_HOURS:
                 break_segment = {
                     "segment_type": "rest_break",
@@ -97,12 +94,10 @@ class HOSCalculator:
                 time_since_break = 0
                 continue
             
-            # Check daily limits
             remaining_daily_driving = self.MAX_DAILY_DRIVING - daily_driving_hours
             remaining_daily_on_duty = self.MAX_DAILY_ON_DUTY - daily_on_duty_hours
             
             if remaining_daily_driving <= 0 or remaining_daily_on_duty <= 0:
-                # Need 10-hour rest
                 rest_segment = {
                     "segment_type": "sleeper_berth",
                     "sequence_number": sequence,
@@ -120,13 +115,12 @@ class HOSCalculator:
                 time_since_break = 0
                 continue
             
-            # Calculate driving segment
             hours_for_remaining_miles = miles_remaining / self.DEFAULT_AVG_SPEED
             max_driving_hours = min(
                 remaining_daily_driving,
                 remaining_daily_on_duty,
                 hours_for_remaining_miles,
-                4.0  # Max 4 hours at a time
+                4.0 
             )
             
             segment_miles = max_driving_hours * self.DEFAULT_AVG_SPEED
@@ -149,7 +143,6 @@ class HOSCalculator:
             time_since_break += max_driving_hours
             miles_remaining -= segment_miles
         
-        # Add dropoff segment
         dropoff_segment = {
             "segment_type": "dropoff",
             "sequence_number": sequence,
@@ -161,10 +154,8 @@ class HOSCalculator:
         }
         segments.append(dropoff_segment)
         
-        # Generate daily logs
         daily_logs = self._generate_daily_logs(segments)
         
-        # Calculate summary
         summary = {
             "total_distance": self.trip_miles,
             "total_duration": sum(s["duration_hours"] for s in segments if s["segment_type"] == "driving"),
@@ -181,20 +172,17 @@ class HOSCalculator:
         }
     
     def _needs_fuel_stop(self, segments: List[Dict]) -> bool:
-        """Check if fuel stop needed (every 1000 miles per assessment)"""
         miles_since_fuel = 0
         for segment in reversed(segments):
             if segment["segment_type"] == "fuel":
                 break
             miles_since_fuel += segment.get("distance_miles", 0)
         else:
-            # No fuel stop found, count all miles
             miles_since_fuel = sum(s.get("distance_miles", 0) for s in segments)
         
         return miles_since_fuel >= self.FUEL_RANGE
     
     def _generate_daily_logs(self, segments: List[Dict]) -> List[Dict]:
-        """Generate FMCSA-compliant daily logs"""
         if not segments:
             return []
         
@@ -217,7 +205,6 @@ class HOSCalculator:
                 }
                 day_number += 1
             
-            # Categorize segment for daily totals
             duration = segment["duration_hours"]
             segment_type = segment["segment_type"]
             
@@ -231,11 +218,9 @@ class HOSCalculator:
             else:
                 daily_logs[day]["off_duty_hours"] += duration
             
-            # Create log entry for ELD grid
             start_hour = segment["start_time"].hour + segment["start_time"].minute / 60
             end_hour = segment["end_time"].hour + segment["end_time"].minute / 60
             
-            # Map segment types to ELD duty status
             duty_status_map = {
                 "driving": "driving",
                 "sleeper_berth": "sleeper_berth", 
@@ -252,7 +237,6 @@ class HOSCalculator:
                 "location": segment["location"]
             })
         
-        # Fill remaining hours as off-duty for each day
         for day_data in daily_logs.values():
             total_hours = (
                 day_data["driving_hours"] + 

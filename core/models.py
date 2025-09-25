@@ -1,11 +1,9 @@
-# core/models.py
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator, MaxValueValidator
 
 
 class Trip(models.Model):
-    """Main trip entity for ELD log generation"""
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="trips", null=True, blank=True)
     
     # Required inputs from assessment
@@ -34,7 +32,6 @@ class Trip(models.Model):
 
 
 class TripSegment(models.Model):
-    """Individual segments of trip (driving, rest, fuel, etc.)"""
     SEGMENT_TYPES = [
         ("driving", "Driving"),
         ("rest_break", "30-min Rest Break"),
@@ -62,7 +59,6 @@ class TripSegment(models.Model):
 
 
 class DailyLog(models.Model):
-    """FMCSA daily log sheet"""
     trip = models.ForeignKey(Trip, on_delete=models.CASCADE, related_name="daily_logs")
     log_date = models.DateField()
     day_number = models.IntegerField()
@@ -83,7 +79,6 @@ class DailyLog(models.Model):
 
 
 class LogEntry(models.Model):
-    """Individual entries on daily log grid"""
     DUTY_STATUS_CHOICES = [
         ('off_duty', 'Off Duty'),
         ('sleeper_berth', 'Sleeper Berth'), 
