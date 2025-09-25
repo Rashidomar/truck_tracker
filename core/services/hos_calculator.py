@@ -25,8 +25,12 @@ class HOSCalculator:
     
     def __init__(self, trip_data: Dict[str, Any]):
         self.start_time = trip_data.get("start_time")
-        self.trip_miles = float(trip_data.get("trip_miles", 0))
-        self.current_cycle_used = float(trip_data.get("current_cycle_used", 0))
+        trip_miles_raw = trip_data.get("trip_miles", 0)
+        current_cycle_used_raw = trip_data.get("current_cycle_used", 0)
+        print(f"DEBUG HOS: trip_miles_raw = {trip_miles_raw}, type = {type(trip_miles_raw)}")
+        print(f"DEBUG HOS: current_cycle_used_raw = {current_cycle_used_raw}, type = {type(current_cycle_used_raw)}")
+        self.trip_miles = float(trip_miles_raw)
+        self.current_cycle_used = float(current_cycle_used_raw)
         self.current_location = trip_data.get("current_location", "")
         self.pickup_location = trip_data.get("pickup_location", "")
         self.dropoff_location = trip_data.get("dropoff_location", "")

@@ -45,7 +45,8 @@ def create_trip(request):
             
             # Calculate distance using coordinates
             distance_miles = distance_calculator.calculate_openroute_distance(coordinates)
-            
+            print(f"DEBUG: distance_miles = {distance_miles}, type = {type(distance_miles)}")
+
             if distance_miles <= 0:
                 return Response(
                     {'error': 'Invalid route distance calculated'},

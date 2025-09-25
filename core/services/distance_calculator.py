@@ -63,6 +63,7 @@ class DistanceCalculation:
                 
         except Exception as e:
             print(f"OpenRouteService API error: {e}")
+            print(f"DEBUG: Returning None from calculate_openroute_distance")
             return None
         
     # def calculate_distance_openroute(self, origin: str, pickup: str, destination: str):
